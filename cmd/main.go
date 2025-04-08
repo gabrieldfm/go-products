@@ -9,10 +9,19 @@ import (
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/gabrieldfm/go-products/internal/db"
 )
 
-var wg sync.WaitGroup
-var urls []string = []string{"https://www.linkedin.com/feed/", "https://www.linkedin.com/notifications/?filter=all"}
+var (
+	wg   sync.WaitGroup
+	urls []string = []string{"https://www.linkedin.com/feed/", "https://www.linkedin.com/notifications/?filter=all"}
+)
+
+type VisitedLink struct {
+	Link        string    `bson: "link"`
+	VisitedDate time.Time `bson: "visiteddate"`
+}
 
 func periodicTask(url string) {
 	fmt.Println("Request url " + url)
@@ -29,6 +38,13 @@ func periodicTask(url string) {
 
 	}
 	defer resp.Body.Close()
+
+	visitedLink := VisitedLink{
+		Link:        url,
+		VisitedDate: time.Now(),
+	}
+
+	db.Insert("links", visitedLink)
 
 	fmt.Println("Executing worker:", time.Now().In(time.FixedZone("America/Sao_Paulo", -3*60*60)).Format(time.RFC3339))
 	fmt.Println(resp.StatusCode)
