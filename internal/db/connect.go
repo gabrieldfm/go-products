@@ -14,7 +14,7 @@ import (
 func getConnection() (client *mongo.Client, ctx context.Context) {
 	errEnv := godotenv.Load()
 	if errEnv != nil {
-		log.Fatal("Error loading .env file")
+		log.Fatal("Error loading .env file: ", errEnv)
 	}
 
 	connectionString := os.Getenv("CONECTIONSTRING_MONGO")
